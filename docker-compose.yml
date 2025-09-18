@@ -1,0 +1,64 @@
+version: '3'
+services:
+
+  #PHP Service
+  news_app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: recybertech/php-mysql:8.4
+    container_name: news_app
+    restart: unless-stopped
+    tty: true
+    volumes:
+        - ./:/var/www/html/
+        - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    environment:
+      SERVICE_NAME: news_app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html/
+    networks:
+      - news-network
+
+  #Nginx Service
+  news_server:
+    image: nginx:alpine
+    container_name: news_server
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${DOCKER_WEBSERVER_PORT:-80}:80"
+    volumes:
+        - ./:/var/www/html/
+        - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - news-network
+
+  #MySQL Service
+  news_db:
+    image: mysql:5.7.32
+    container_name: news_db
+    platform: linux/x86_64
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - news_dbdata:/var/lib/mysql/
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: news_db
+    networks:
+      - news-network
+
+#Volumes
+volumes:
+  news_dbdata:
+    driver: local
+
+#Docker Networks
+networks:
+  news-network:
+    driver: bridge
