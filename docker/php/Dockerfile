@@ -8,9 +8,10 @@ RUN getent group www || groupadd -g 1000 www \
 COPY --chown=www:www . /var/www/html/
 
 # Copy all scripts into working directory
-COPY ./docker/php/script /usr/script/
-RUN chmod +x /usr/script/*
+COPY docker/init.sh /usr/local/bin/init.sh
+RUN chmod +x /usr/local/bin/init.sh
 
 # Expose port 9000 and start php-fpm server (for FastCGI Process Manager)
 EXPOSE 9000
+ENTRYPOINT ["init.sh"]
 CMD ["php-fpm"]
