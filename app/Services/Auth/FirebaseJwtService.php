@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\Auth\Providers;
+namespace App\Services\Auth;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use App\Services\Auth\Contracts\JwtAuth;
 
-class FirebaseJwtProvider implements JwtAuth
+class FirebaseJwtService implements JwtAuth
 {
     public function __construct(protected string $key)
     {
